@@ -1,7 +1,7 @@
 CFLAGS = -std=gnu99 -Wall -Werror -O2
 LIBFLAGS = -lncurses
 CC = gcc
-OUTFILE = ../ant
+OUTFILE = ./ant
 
 all:
 	$(CC) $(CFLAGS) -o $(OUTFILE) main.c $(LIBFLAGS)

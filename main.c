@@ -27,8 +27,8 @@
 #include <time.h>
 
 /*---------------------------------------- globals ---------------------------------------*/
-#define WIDTH 80
-#define HEIGHT 40
+#define WIDTH 100
+#define HEIGHT 50
 
 static PIECE *WORLD[HEIGHT][WIDTH]; 
 static struct PIECE *ANT;
@@ -76,20 +76,30 @@ void moveCounterClockWise(void) {
     ANT_DIR -= 1;
     ANT_DIR %= 4;
 }
-
 //move the ant based on it's current direction
 void moveAnt(void) {
+    int new_x = ANT->x;
+    int new_y = ANT->y;
     switch(ANT_DIR) {
-        case UP:ANT->y--;
+        case UP:new_y--;
             break;
-        case DOWN:ANT->y++;
+        case DOWN:new_y++;
             break;
-        case LEFT:ANT->x--;
+        case LEFT:new_x--;
             break;
-        case RIGHT:ANT->x++;
+        case RIGHT:new_x++;
             break;
         default: //do nothing
             break;
+    }
+    //make sure ant stays within bounds
+    if(new_y >= HEIGHT || new_y < 0 || new_x >= WIDTH || new_x < 0) {
+        flipAnt();
+        moveAnt();
+    }
+    else {
+        ANT->x = new_x;
+        ANT->y = new_y;
     }
 }
 
@@ -174,8 +184,8 @@ void makeAnt(void) {
     ANT = malloc(SIZE_PIECE);
     ANT->color = RED_W;
     ANT->icon  = '#';
-    ANT->x     = WIDTH/2;
-    ANT->y     = HEIGHT/2;
+    ANT->x     = WIDTH / 2;
+    ANT->y     = HEIGHT / 2;
     ANT_DIR    = rand() % 4;   //init driection to a random direction
 }
 
