@@ -1,7 +1,8 @@
 /*---------------------------------------- Description -------------------------------------*/
-/*   short program which implements Langton's ant
+/*   simple program which implements Langton's ant
  *          - if ant is on white tile, turn clockwise, turn current tile black, then move forward one space
  *          - if ant is on black tile, turn counterclockwise, turn current tile white, then move forward one space
+ *  
  *  license: GPL 3.0        Author: github/return5
  *
  *  Copyright (C) <2020>  <return5>
