@@ -27,108 +27,122 @@
 #include <time.h>
 
 /*---------------------------------------- globals ---------------------------------------*/
-#define WIDTH 100
-#define HEIGHT 50
+#define WIDTH 50
+#define HEIGHT 25
 
 static PIECE *WORLD[HEIGHT][WIDTH]; 
 static struct PIECE *ANT;
 static const size_t SIZE_PIECE = sizeof(PIECE);
-static DIRECTION ANT_DIR;
-
 
 /*------------------------------------------ prototypes -----------------------------------*/
-void flipAnt(void);
-void moveCounterClockWise(void);
+
 void simulationLoop(void);
-void makeAnt(void);
+PIECE *makeAnt(void);
 void initWorld(void);
 PIECE *makePiece(const int i, const int j);
 void initWindow(void);
 void initColors(void);
 void printWorld(void);
-void printAnt(void);
-void flipAnt(void);
-void flipPiece(void);
-void moveAnt(void);
-void changeAntBKGColor(void);
-void moveClockWise(void);
+void printAnt(PIECE *const ant);
+void flipAnt(PIECE *const ant);
+void flipPiece(PIECE *const ant);
+void moveAnt(PIECE *const ant);
+void moveCounterClockWise(PIECE *const ant);
+void moveClockWise(PIECE *const ant);
+void changeAntBKGColor(PIECE *const ant);
+int getNewY(const int y);
+int getNewX(const int x);
 
 /*----------------------------------------- code ------------------------------------------*/
 
 //cahnge ant's backgound color to make the tile it is currently on
-void changeAntBKGColor(void) {
-    if(WORLD[ANT->y][ANT->x]->color == WHITE) {
-        ANT->color = RED_W;
+void changeAntBKGColor(PIECE *const ant) {
+    if(WORLD[ant->y][ant->x]->color == WHITE) {
+        ant->color = RED_W;
     }
     else {
-        ANT->color = RED_B;
+        ant->color = RED_B;
     }
 }
 
 //turn the ant clockwise
-void moveClockWise(void) {
-    ANT_DIR += 1;
-    ANT_DIR %= 4;
+void moveClockWise(PIECE *const ant) {
+    ant->dir += 1;
+    ant->dir %= 4;
 }
 
 //move the ant coounterclockwise
-void moveCounterClockWise(void) {
-    ANT_DIR -= 1;
-    ANT_DIR %= 4;
+void moveCounterClockWise(PIECE *const ant) {
+    ant->dir -= 1;
+    ant->dir %= 4;
 }
-//move the ant based on it's current direction
-void moveAnt(void) {
-    int new_x = ANT->x;
-    int new_y = ANT->y;
-    switch(ANT_DIR) {
-        case UP:new_y--;
+
+
+int getNewX(const int x) {
+    if(x < 0) {
+        return WIDTH - 1;
+    }
+    else if(x >= WIDTH) {
+        return 0;
+    }
+    else {
+        return x;
+    }
+}
+
+int getNewY(const int y) {
+    if(y < 0) {
+        return HEIGHT - 1;
+    }
+    else if(y >= HEIGHT) {
+        return 0;
+    }
+    else {
+        return y;
+    }
+}
+
+//move the ant based on its current direction
+void moveAnt(PIECE *const ant) {
+    switch(ant->dir) {
+        case UP: ant->y = getNewY(ant->y - 1);
             break;
-        case DOWN:new_y++;
+        case DOWN: ant->y = getNewY(ant->y + 1);
             break;
-        case LEFT:new_x--;
+        case LEFT: ant->x = getNewX(ant->x - 1);
             break;
-        case RIGHT:new_x++;
+        case RIGHT: ant->x = getNewX(ant->x + 1);
             break;
         default: //do nothing
             break;
     }
-    //make sure ant stays within bounds
-    if(new_y >= HEIGHT || new_y < 0 || new_x >= WIDTH || new_x < 0) {
-        flipAnt();
-        moveAnt();
-    }
-    else {
-        ANT->x = new_x;
-        ANT->y = new_y;
-    }
 }
 
-
 //change the color of the tile the ant is standing on.
-void flipPiece(void) {
-    if(WORLD[ANT->y][ANT->x]->color == WHITE) {
-        WORLD[ANT->y][ANT->x]->color = BLACK;
+void flipPiece(PIECE *const ant) {
+    if(WORLD[ant->y][ant->x]->color == WHITE) {
+        WORLD[ant->y][ant->x]->color = BLACK;
     }
     else {
-        WORLD[ANT->y][ANT->x]->color = WHITE;
+        WORLD[ant->y][ant->x]->color = WHITE;
     }
 }
 
 //turn the ant based on color of tile it is standing on
-void flipAnt(void) {
-    if(WORLD[ANT->y][ANT->x]->color == WHITE) {
-        moveClockWise();
+void flipAnt(PIECE *const ant) {
+    if(WORLD[ant->y][ant->x]->color == WHITE) {
+        moveClockWise(ant);
     }
     else {
-        moveCounterClockWise();
+        moveCounterClockWise(ant);
     }
 }
 
 //print the ant to screen
-void printAnt(void) {
-    attron(COLOR_PAIR(ANT->color));
-    mvaddch(ANT->y,ANT->x,ANT->icon);
-    attroff(COLOR_PAIR(ANT->color));
+void printAnt(PIECE *const ant) {
+    attron(COLOR_PAIR(ant->color));
+    mvaddch(ant->y,ant->x,ant->icon);
+    attroff(COLOR_PAIR(ant->color));
 }
 
 //print the entire world to screen
@@ -180,27 +194,31 @@ void initWorld(void) {
 }
 
 //make the ant
-void makeAnt(void) {
-    ANT = malloc(SIZE_PIECE);
-    ANT->color = RED_W;
-    ANT->icon  = '#';
-    ANT->x     = WIDTH / 2;
-    ANT->y     = HEIGHT / 2;
-    ANT_DIR    = rand() % 4;   //init driection to a random direction
+PIECE *makeAnt(void) {
+    PIECE *ant = malloc(SIZE_PIECE);
+    ant->color = RED_W;
+    ant->icon  = '#';
+    ant->x     = WIDTH / 2;
+    ant->y     = HEIGHT / 2;
+    ant->dir    = rand() % 4;   //init driection to a random direction
+    return ant;
 }
 
+void antTurn(PIECE *const ant) {
+    printAnt(ant);
+    flipAnt(ant);
+    flipPiece(ant);
+    moveAnt(ant);
+    changeAntBKGColor(ant);
+}
 
 //run simulation 11K times.
 void simulationLoop(void) {
     for(int i = 0; i < 11000; i++) {
         printWorld();
-        printAnt();
         mvprintw(0,0,"iteration: %d",i);
+        antTurn(ANT);
         refresh();
-        flipAnt();
-        flipPiece();
-        moveAnt();
-        changeAntBKGColor();
         nanosleep((const struct timespec[]){{0, 100000000L}}, NULL);
     }
 }
@@ -210,7 +228,7 @@ int main(void) {
     initWorld();
     initColors();
     srand(time(0));
-    makeAnt();
+    ANT = makeAnt();
     simulationLoop();
     mvprintw(0,0,"simulation complete. press any key to exit\n");
     getch();
