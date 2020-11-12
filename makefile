@@ -1,10 +1,12 @@
-CFLAGS = -std=gnu99 -Wall -Werror -O2
-LIBFLAGS = -lncurses
+CFLAGS = -std=gnu99 -Wall -Wextra -O2 
+LIBFLAGS = -lncurses -I
 CC = gcc
-OUTFILE = ./ant
+SRC = ./src/
+HEADERS = headers
+OUTFILE = ant
 
 all:
-	$(CC) $(CFLAGS) -o $(OUTFILE) main.c $(LIBFLAGS)
+	$(CC) $(CFLAGS) -o$(OUTFILE) $(SRC)*.c $(LIBFLAGS)$(HEADERS) 
 
 clean:
 	rm -f *.o *.gch
